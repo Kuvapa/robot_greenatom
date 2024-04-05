@@ -1,9 +1,11 @@
+import os
+import signal
+import subprocess
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from threading import Thread
 
 from app.core.config import settings
-from app.scripts.robot import robot_count, switch_count
 
 
 def get_application():
@@ -22,16 +24,26 @@ def get_application():
 
 app = get_application()
 
+process_in_work = None
 
 @app.post("/start")
 async def start_endpoint(start_point: int = 0):
-    th = Thread(target=await robot_count(), args=(start_point, ))
-    await switch_count(False)
-    th.start()
-    return {"message": "Робот запущен со стартовым значением: " + str(
-            start_point)}
+    global process_in_work
+    if process_in_work:
+        return {"message": "Робот уже запущен"}
+    process_in_work = subprocess.Popen(
+        ["start", "./app/scripts/robot.py", f"{start_point}"],
+        shell=True
+    )
+    return {"message": f"Робот запущен со стартовым значением: {start_point}"}
 
 
 @app.post("/stop")
-async def stop_count_endpoint(bool_flag: bool = True):
-    await switch_count(bool_flag)
+async def stop_count_endpoint():
+    global process_in_work
+    if not process_in_work:
+        return {"message": "Робот не запущен"}
+    process_in_work.wait()
+    process_in_work.kill()
+    process_in_work = None
+    return {"message": "Робот остановлен"}

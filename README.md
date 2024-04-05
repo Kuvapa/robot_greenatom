@@ -39,7 +39,7 @@ BACKEND_CORS_ORIGINS=["http://localhost:8000", "https://localhost:8000", "http:/
 ***Запуск проекта***
 
 ```
-uvicorn main:app --reload 
+uvicorn app.main:app --reload
 ```
 
 [С дальнейшей документацией проекта можно ознакомиться по адресу](https://localhost:8000/docs)
