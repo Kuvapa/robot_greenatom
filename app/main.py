@@ -1,6 +1,5 @@
-import os
-import signal
 import subprocess
+import psutil
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,7 +31,7 @@ async def start_endpoint(start_point: int = 0):
     if process_in_work:
         return {"message": "Робот уже запущен"}
     process_in_work = subprocess.Popen(
-        ["start", "./app/scripts/robot.py", f"{start_point}"],
+        ["start", "/WAIT", "./app/scripts/robot.py", f"{start_point}"],
         shell=True
     )
     return {"message": f"Робот запущен со стартовым значением: {start_point}"}
@@ -43,7 +42,7 @@ async def stop_count_endpoint():
     global process_in_work
     if not process_in_work:
         return {"message": "Робот не запущен"}
-    process_in_work.wait()
-    process_in_work.kill()
+    process_pid = process_in_work.pid
+    psutil.Process(process_pid).children()[0].kill()
     process_in_work = None
     return {"message": "Робот остановлен"}
