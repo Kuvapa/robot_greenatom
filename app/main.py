@@ -26,7 +26,7 @@ app = get_application()
 process_in_work = None
 
 @app.post("/start")
-async def start_endpoint(start_point: int = 0):
+async def start_endpoint(start_point: int = 0) -> dict:
     global process_in_work
     if process_in_work:
         return {"message": "Робот уже запущен"}
@@ -38,7 +38,7 @@ async def start_endpoint(start_point: int = 0):
 
 
 @app.post("/stop")
-async def stop_count_endpoint():
+async def stop_count_endpoint() -> dict:
     global process_in_work
     if not process_in_work:
         return {"message": "Робот не запущен"}
